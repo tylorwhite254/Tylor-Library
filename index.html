@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Tylor Enterprises | Digital Library</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+        }
+
+        /* Professional gradient overlay + background image (replace URL with your own) */
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.55)), 
+                        url('https://www.image2url.com/r2/default/images/1780668235913-70c66f4a-430a-4395-9337-133917bfb7ec.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* Main container – white card with shadow */
+        .library-container {
+            width: 100%;
+            max-width: 1300px;
+            background: rgba(255, 255, 255, 0.96);
+            border-radius: 32px;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255,255,255,0.2);
+            overflow: hidden;
+            backdrop-filter: blur(0px);
+            transition: all 0.3s ease;
+        }
+
+        /* Header with logo & title */
+        .header {
+            background: #0a2b3e;
+            padding: 1.2rem 2rem;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .brand h1 {
+            font-size: 1.9rem;
+            letter-spacing: -0.5px;
+            font-weight: 600;
+        }
+        .brand p {
+            font-size: 0.85rem;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+        .music-control {
+            background: rgba(255,255,255,0.15);
+            padding: 8px 16px;
+            border-radius: 40px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            backdrop-filter: blur(4px);
+        }
+        .music-control button {
+            background: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 30px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #0a2b3e;
+            transition: 0.2s;
+        }
+        .music-control span {
+            font-size: 0.85rem;
+        }
+
+        /* Content area */
+        .content {
+            padding: 2rem;
+        }
+
+        /* Login form (shown by default) */
+        .login-section {
+            max-width: 450px;
+            margin: 40px auto;
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            padding: 2rem;
+            text-align: center;
+        }
+        .login-section h2 {
+            color: #0a2b3e;
+            margin-bottom: 0.5rem;
+        }
+        .input-group {
+            margin: 1.2rem 0;
+            text-align: left;
+        }
+        .input-group label {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 8px;
+            color: #1f3b4a;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #ccc;
+            border-radius: 28px;
+            font-size: 1rem;
+            transition: 0.2s;
+        }
+        .input-group input:focus {
+            border-color: #0a2b3e;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(10,43,62,0.2);
+        }
+        .login-btn {
+            background: #0a2b3e;
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 12px;
+            border-radius: 40px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .login-btn:hover {
+            background: #144e6b;
+            transform: scale(0.98);
+        }
+        .error-msg {
+            color: #c0392b;
+            margin-top: 12px;
+            font-size: 0.9rem;
+        }
+
+        /* Library dashboard (hidden until login) */
+        .dashboard {
+            display: none;
+        }
+
+        /* Tabs style */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            border-bottom: 2px solid #e2e8f0;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+        }
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 10px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            color: #475569;
+            border-radius: 30px 30px 0 0;
+            transition: 0.2s;
+        }
+        .tab-btn.active {
+            background: #0a2b3e;
+            color: white;
+            border-radius: 30px;
+        }
+        .tab-pane {
+            display: none;
+            animation: fade 0.2s ease;
+        }
+        .tab-pane.active-pane {
+            display: block;
+        }
+        @keyframes fade {
+            from { opacity: 0; transform: translateY(5px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+
+        /* Card grid for notes & papers */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 22px;
+            margin: 20px 0;
+        }
+        .resource-card {
+            background: #f8fafc;
+            border-radius: 24px;
+            padding: 1.2rem;
+            border-left: 6px solid #0a2b3e;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+            transition: all 0.2s;
+        }
+        .resource-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            color: #0f2c3b;
+        }
+        .resource-card p {
+            color: #2d3e4b;
+            margin: 10px 0;
+            line-height: 1.4;
+        }
+        .resource-card small {
+            color: #5b6e7c;
+            font-size: 0.75rem;
+        }
+        .delete-btn {
+            background: #eef2f6;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 20px;
+            margin-top: 12px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: 0.2s;
+        }
+        .delete-btn:hover {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        /* Admin panel (only visible if logged-in user knows, but we add condition for Tylor) */
+        .admin-panel {
+            background: #f1f5f9;
+            border-radius: 28px;
+            padding: 1.5rem;
+            margin-top: 30px;
+            border: 1px solid #cbd5e1;
+        }
+        .admin-panel h3 {
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .form-row input, .form-row textarea, .form-row select {
+            flex: 1;
+            padding: 12px;
+            border-radius: 24px;
+            border: 1px solid #cbd5e1;
+            font-family: inherit;
+        }
+        .admin-btn {
+            background: #0a2b3e;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .footer {
+            text-align: center;
+            padding: 1rem;
+            background: #eef2f6;
+            font-size: 0.8rem;
+            color: #334155;
+        }
+        @media (max-width: 700px) {
+            .content { padding: 1rem; }
+            .brand h1 { font-size: 1.4rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="library-container" id="appRoot">
+    <div class="header">
+        <div class="brand">
+            <h1>📚 Tylor Enterprises</h1>
+            <p>digital library • real-time notes & past papers</p>
+        </div>
+        <div class="music-control" id="musicControlArea">
+            <span>🎵 Ambient</span>
+            <button id="musicToggleBtn">🔊 Mute</button>
+        </div>
+    </div>
+
+    <div class="content">
+        <!-- LOGIN SECTION -->
+        <div id="loginSection" class="login-section">
+            <h2>🔐 Library Access</h2>
+            <p style="margin-bottom: 1rem;">Please sign in to view materials</p>
+            <div class="input-group">
+                <label>Username</label>
+                <input type="text" id="loginUsername" placeholder="Enter username" autocomplete="off">
+            </div>
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" id="loginPassword" placeholder="Enter password">
+            </div>
+            <button class="login-btn" id="doLoginBtn">Login →</button>
+            <div id="loginError" class="error-msg"></div>
+            <p style="margin-top: 20px; font-size: 0.8rem;">Demo: username `Tylor` / password `Tylor`</p>
+        </div>
+
+        <!-- DASHBOARD (visible after login) -->
+        <div id="dashboard" class="dashboard">
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="notes">📝 Notes</button>
+                <button class="tab-btn" data-tab="papers">📄 Past Papers</button>
+            </div>
+
+            <!-- Notes Pane -->
+            <div id="notesPane" class="tab-pane active-pane">
+                <div id="notesContainer" class="card-grid">
+                    <!-- dynamic notes will appear here -->
+                </div>
+            </div>
+
+            <!-- Past Papers Pane -->
+            <div id="papersPane" class="tab-pane">
+                <div id="papersContainer" class="card-grid">
+                    <!-- dynamic papers -->
+                </div>
+            </div>
+
+            <!-- Admin panel: only visible for Tylor (but we already require login) 
+                 Since only Tylor can login, we allow content management -->
+            <div class="admin-panel">
+                <h3>✏️ Live Update Panel (Real-time for all users)</h3>
+                <div class="form-row">
+                    <input type="text" id="newTitle" placeholder="Title e.g., 'Calculus Notes Chapter 2'">
+                    <select id="resourceType">
+                        <option value="note">📘 Note</option>
+                        <option value="paper">📑 Past Paper</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <textarea id="newDescription" rows="2" placeholder="Description or content summary / download link (could be text or URL)"></textarea>
+                </div>
+                <button class="admin-btn" id="addResourceBtn">+ Add / Update in Real Time</button>
+                <p style="margin-top: 12px; font-size: 0.75rem; color:#2c5a6e;">✔ Any addition or deletion saves instantly. All users (on this browser/device) see changes immediately.</p>
+            </div>
+        </div>
+    </div>
+    <div class="footer">
+        Tylor Enterprises Knowledge Hub — Professional digital library | updated in real time
+    </div>
+</div>
+
+<script>
+    // ---------- BACKGROUND MUSIC (plays only before login) ----------
+    let audio = null;
+    let musicPlaying = false;
+    let isLoggedIn = false;
+
+    function initAudio() {
+        if (!audio) {
+            audio = new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'); // Royalty-free demo track
+            audio.loop = true;
+            audio.volume = 0.35;
+        }
+    }
+
+    function playMusic() {
+        if (!isLoggedIn && audio && !musicPlaying) {
+            audio.play().catch(e => console.log("Autoplay blocked, user interaction needed"));
+            musicPlaying = true;
+            updateMusicButtonUI();
+        }
+    }
+
+    function pauseMusic() {
+        if (audio && musicPlaying) {
+            audio.pause();
+            musicPlaying = false;
+            updateMusicButtonUI();
+        }
+    }
+
+    function toggleMusic() {
+        if (!audio) initAudio();
+        if (musicPlaying) {
+            pauseMusic();
+        } else {
+            if (!isLoggedIn) {
+                playMusic();
+            } else {
+                // If logged in, no music should play by design, but we avoid enabling
+                alert("Music is only available before login (library silent mode after login)");
+            }
+        }
+    }
+
+    function updateMusicButtonUI() {
+        const btn = document.getElementById('musicToggleBtn');
+        if (btn) {
+            btn.innerText = musicPlaying ? "🔇 Mute" : "🔊 Play";
+        }
+    }
+
+    // Stop music on login
+    function stopMusicOnLogin() {
+        if (audio && musicPlaying) {
+            audio.pause();
+            musicPlaying = false;
+            updateMusicButtonUI();
+        }
+    }
+
+    // ---------- REAL TIME STORAGE (localStorage) ----------
+    const STORAGE_KEY = "tylor_enterprises_library";
+
+    // Default sample data
+    function getDefaultData() {
+        return {
+            notes: [
+                { id: "n1", title: "Introduction to Algorithms", description: "Time complexity basics, sorting (2024 edition).", createdAt: Date.now() },
+                { id: "n2", title: "Organic Chemistry Notes", description: "Reaction mechanisms and functional groups.", createdAt: Date.now() }
+            ],
+            papers: [
+                { id: "p1", title: "Mathematics Final 2023", description: "Past paper with solutions – Calculus & Linear Algebra.", createdAt: Date.now() },
+                { id: "p2", title: "Physics Mechanics Exam", description: "Newton's laws, work-energy theorem (2022).", createdAt: Date.now() }
+            ]
+        };
+    }
+
+    function loadLibraryData() {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) {
+            const defaultData = getDefaultData();
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultData));
+            return defaultData;
+        }
+        return JSON.parse(raw);
+    }
+
+    function saveLibraryData(data) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    // Render both sections based on current data
+    function renderLibrary() {
+        const data = loadLibraryData();
+        // Render notes
+        const notesContainer = document.getElementById('notesContainer');
+        if (notesContainer) {
+            notesContainer.innerHTML = '';
+            if (data.notes.length === 0) {
+                notesContainer.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:2rem;">📭 No notes added yet. Use admin panel to add.</div>';
+            } else {
+                data.notes.forEach(note => {
+                    const card = document.createElement('div');
+                    card.className = 'resource-card';
+                    card.innerHTML = `
+                        <h3>📘 ${escapeHtml(note.title)}</h3>
+                        <p>${escapeHtml(note.description)}</p>
+                        <small>ID: ${note.id}</small>
+                        <button class="delete-btn" data-id="${note.id}" data-type="note">🗑 Delete</button>
+                    `;
+                    notesContainer.appendChild(card);
+                });
+            }
+        }
+
+        // Render papers
+        const papersContainer = document.getElementById('papersContainer');
+        if (papersContainer) {
+            papersContainer.innerHTML = '';
+            if (data.papers.length === 0) {
+                papersContainer.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:2rem;">📭 No past papers uploaded yet.</div>';
+            } else {
+                data.papers.forEach(paper => {
+                    const card = document.createElement('div');
+                    card.className = 'resource-card';
+                    card.innerHTML = `
+                        <h3>📄 ${escapeHtml(paper.title)}</h3>
+                        <p>${escapeHtml(paper.description)}</p>
+                        <small>Paper ID: ${paper.id}</small>
+                        <button class="delete-btn" data-id="${paper.id}" data-type="paper">🗑 Delete</button>
+                    `;
+                    papersContainer.appendChild(card);
+                });
+            }
+        }
+
+        // Attach delete events after rendering
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.removeEventListener('click', handleDelete);
+            btn.addEventListener('click', handleDelete);
+        });
+    }
+
+    function handleDelete(e) {
+        const id = e.currentTarget.getAttribute('data-id');
+        const type = e.currentTarget.getAttribute('data-type');
+        const data = loadLibraryData();
+        if (type === 'note') {
+            data.notes = data.notes.filter(n => n.id !== id);
+        } else if (type === 'paper') {
+            data.papers = data.papers.filter(p => p.id !== id);
+        }
+        saveLibraryData(data);
+        renderLibrary(); // real-time refresh
+    }
+
+    function addResource(title, description, type) {
+        if (!title.trim()) return alert("Title is required");
+        if (!description.trim()) return alert("Description is required");
+        const data = loadLibraryData();
+        const newId = type + "_" + Date.now() + "_" + Math.floor(Math.random() * 10000);
+        const newItem = {
+            id: newId,
+            title: title.trim(),
+            description: description.trim(),
+            createdAt: Date.now()
+        };
+        if (type === 'note') {
+            data.notes.unshift(newItem);
+        } else if (type === 'paper') {
+            data.papers.unshift(newItem);
+        } else {
+            return;
+        }
+        saveLibraryData(data);
+        renderLibrary();
+    }
+
+    // Helper: escape HTML
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
+            return c;
+        });
+    }
+
+    // Tab switching
+    function initTabs() {
+        const tabs = document.querySelectorAll('.tab-btn');
+        tabs.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tabId = btn.getAttribute('data-tab');
+                // update active class on buttons
+                tabs.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                // hide all panes
+                document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active-pane'));
+                if (tabId === 'notes') document.getElementById('notesPane').classList.add('active-pane');
+                if (tabId === 'papers') document.getElementById('papersPane').classList.add('active-pane');
+            });
+        });
+    }
+
+    // Login logic
+    function setupLogin() {
+        const loginBtn = document.getElementById('doLoginBtn');
+        const userInput = document.getElementById('loginUsername');
+        const passInput = document.getElementById('loginPassword');
+        const errorDiv = document.getElementById('loginError');
+        const loginSection = document.getElementById('loginSection');
+        const dashboard = document.getElementById('dashboard');
+
+        function attemptLogin() {
+            const username = userInput.value.trim();
+            const password = passInput.value.trim();
+            if (username === "Tylor" && password === "Tylor") {
+                isLoggedIn = true;
+                loginSection.style.display = 'none';
+                dashboard.style.display = 'block';
+                stopMusicOnLogin();   // stop background music after login (professional)
+                renderLibrary();      // load data for first time
+                errorDiv.innerText = '';
+            } else {
+                errorDiv.innerText = 'Invalid credentials. Use Tylor / Tylor';
+            }
+        }
+        loginBtn.addEventListener('click', attemptLogin);
+        // allow enter key
+        const inputs = [userInput, passInput];
+        inputs.forEach(inp => inp.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') attemptLogin();
+        }));
+    }
+
+    // Admin add button
+    function setupAdmin() {
+        const addBtn = document.getElementById('addResourceBtn');
+        if (addBtn) {
+            addBtn.addEventListener('click', () => {
+                const title = document.getElementById('newTitle').value;
+                const description = document.getElementById('newDescription').value;
+                const typeSelect = document.getElementById('resourceType').value; // 'note' or 'paper'
+                addResource(title, description, typeSelect);
+                // clear fields optional but nice
+                document.getElementById('newTitle').value = '';
+                document.getElementById('newDescription').value = '';
+            });
+        }
+    }
+
+    // Music requires interaction (browser policies) but we trigger on first click anywhere or init
+    function bindMusicToUserInteraction() {
+        const playMusicOnFirstUserAction = () => {
+            if (!isLoggedIn && audio && !musicPlaying) {
+                playMusic();
+            }
+            document.removeEventListener('click', playMusicOnFirstUserAction);
+            document.removeEventListener('keydown', playMusicOnFirstUserAction);
+        };
+        document.addEventListener('click', playMusicOnFirstUserAction);
+        document.addEventListener('keydown', playMusicOnFirstUserAction);
+        // Also initialize audio but not autoplay
+        initAudio();
+    }
+
+    function initialize() {
+        setupLogin();
+        initTabs();
+        setupAdmin();
+        bindMusicToUserInteraction();
+        // Set toggle button
+        const toggleBtn = document.getElementById('musicToggleBtn');
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (!isLoggedIn) {
+                    toggleMusic();
+                } else {
+                    alert("Music is disabled while using library resources.");
+                }
+            });
+        }
+        // Initially dashboard hidden
+        document.getElementById('dashboard').style.display = 'none';
+        // Pre-load default data if needed
+        loadLibraryData();
+    }
+
+    initialize();
+</script>
+</body>
+</html>
